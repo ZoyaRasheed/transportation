@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Transportation & Loading Department Coordination System
 
-## Getting Started
+A modern web application designed to streamline communication and coordination between Loading and Transportation departments. This system replaces radio-based communication with real-time digital notifications, optimizing truck movements and reducing operational delays.
 
-First, run the development server:
+## 🚛 Project Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The Transportation & Loading Department Coordination App bridges the gap between Loading and Transportation departments by providing a centralized platform for truck request management, real-time notifications, and operational tracking.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Core Objectives
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **Eliminate Radio Dependency**: Replace outdated radio communication with instant digital notifications
+- **Streamline Truck Requests**: Simplified request system for loading team coordination
+- **Real-time Tracking**: Monitor truck movements, door assignments, and completion times
+- **Issue Management**: Track and resolve equipment problems and operational delays
+- **Performance Analytics**: Generate insights into efficiency and response times
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎯 Key Features
 
-## Learn More
+### Department Interfaces
 
-To learn more about Next.js, take a look at the following resources:
+**Loading Department**
+- Create truck requests for specific doors
+- Add loading instructions and priority levels
+- Track request status in real-time
+- Report door-related issues
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Transportation Department**
+- View and accept pending truck requests
+- Update truck locations and status
+- Manage fleet availability
+- Report mechanical issues and delays
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Supervisor Dashboard**
+- Monitor all department activities
+- Access performance reports and analytics
+- Manage user accounts and permissions
+- Resolve escalated issues
 
-## Deploy on Vercel
+### System Capabilities
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Real-time Notifications**: Instant alerts via web, mobile, email, and SMS
+- **Request Assignment**: Automatic assignment to available switchers
+- **Issue Tracking**: Comprehensive incident reporting and resolution
+- **Mobile Optimization**: Responsive design for handheld devices
+- **Role-based Access**: Secure authentication with department-specific permissions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠 Technology Stack
+
+- **Frontend**: Next.js 14, React, Tailwind CSS, shadcn/ui
+- **Backend**: Next.js API Routes, NextAuth.js
+- **Database**: MongoDB with Mongoose ODM
+- **Real-time**: Server-Sent Events and API polling
+- **Authentication**: Role-based access control
+- **Deployment**: Vercel-optimized serverless architecture
+
+## 📋 User Roles
+
+### Loader
+- Create and manage truck requests
+- Update loading status and notes
+- Report loading-related issues
+
+### Switcher
+- Accept and complete truck requests
+- Update truck locations
+- Report transportation issues
+
+### Dispatcher
+- Monitor switcher activities
+- Reassign requests when needed
+- Manage transportation operations
+
+### Supervisor
+- Full system oversight
+- User management capabilities
+- Access to all reports and analytics
+
+## 🎨 User Experience
+
+The application features a clean, intuitive interface optimized for:
+- **Quick Actions**: Fast request creation and status updates
+- **Clear Visibility**: Real-time status of all operations
+- **Mobile-First**: Touch-friendly design for yard operations
+- **Minimal Training**: Intuitive workflows requiring minimal onboarding
+
+## 📊 Expected Benefits
+
+- **Reduced Response Times**: Faster truck request processing
+- **Improved Coordination**: Better communication between departments
+- **Enhanced Visibility**: Real-time operational insights
+- **Issue Prevention**: Proactive equipment and process management
+- **Data-Driven Decisions**: Performance analytics for continuous improvement
+
+---
+
+*Made with ❤️ by Zoya*
