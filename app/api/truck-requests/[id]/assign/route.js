@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { withRoles } from '@/utils/roleMiddleware';
 import TruckRequest from '@/models/TruckRequest';
+import Truck from '@/models/Truck';
+import DriverProfile from '@/models/DriverProfile';
 import Notification from '@/models/Notification';
 import User from '@/models/User';
 
@@ -51,58 +53,91 @@ const assignTruckRequest = async (request, { session, user }, params) => {
       }, { status: 400 });
     }
 
-    const driver = await User.findById(driverId);
-    if (!driver) {
+    // Find and validate truck
+    const truck = await Truck.findById(truckId);
+    if (!truck || truck.status !== 'available') {
       return NextResponse.json({
         success: false,
-        statusCode: 404,
+        statusCode: 400,
         request: {
           method: request.method,
           url: request.url
         },
-        message: 'Driver not found',
+        message: 'Truck is not available for assignment',
         timestamp: new Date().toISOString()
-      }, { status: 404 });
+      }, { status: 400 });
     }
 
+    // Find and validate driver
+    const driver = await DriverProfile.findById(driverId).populate('userId');
+    if (!driver || driver.status !== 'available') {
+      return NextResponse.json({
+        success: false,
+        statusCode: 400,
+        request: {
+          method: request.method,
+          url: request.url
+        },
+        message: 'Driver is not available for assignment',
+        timestamp: new Date().toISOString()
+      }, { status: 400 });
+    }
+
+    // Update truck request
     truckRequest.assignedTruck = {
-      truckId,
-      driverId,
+      truckId: truck._id,
+      driverId: driver._id,
       assignedAt: new Date(),
       assignedBy: user._id
     };
     truckRequest.status = 'assigned';
+    truckRequest.timeline = {
+      ...truckRequest.timeline,
+      assignedAt: new Date()
+    };
     if (notes) {
       truckRequest.notes = notes;
     }
-
     await truckRequest.save();
+
+    // Update truck status
+    truck.status = 'assigned';
+    truck.assignedDriverId = driver.userId._id;
+    truck.currentRequestId = truckRequest._id;
+    await truck.save();
+
+    // Update driver status
+    driver.status = 'assigned';
+    driver.currentTruckId = truck._id;
+    await driver.save();
 
     const loaderNotification = new Notification({
       recipientId: truckRequest.requesterId._id,
       senderId: user._id,
-      type: 'assignment',
-      title: 'Truck Assigned to Your Request',
-      message: `Truck ${truckId} with driver ${driver.name} has been assigned to your request #${truckRequest.loadId}`,
+      type: 'status_update',
+      title: 'Request Assigned',
+      message: `✅ Your transportation request #${truckRequest._id.toString().slice(-6)} has been assigned to truck ${truck.truckNumber} with driver ${driver.userId.name}`,
       data: {
         truckRequestId: truckRequest._id,
+        truckId: truck._id,
+        driverId: driver._id,
         status: 'assigned',
-        priority: truckRequest.priority,
-        actionUrl: `/dashboard/requests/${truckRequest._id}`
+        actionUrl: `/dashboard/loader/requests/${truckRequest._id}`
       }
     });
 
     const driverNotification = new Notification({
-      recipientId: driverId,
+      recipientId: driver.userId._id,
       senderId: user._id,
       type: 'assignment',
-      title: 'New Truck Assignment',
-      message: `You have been assigned to handle load #${truckRequest.loadId} from ${truckRequest.pickupLocation} to ${truckRequest.deliveryLocation}`,
+      title: 'New Assignment Received',
+      message: `🚚 You have been assigned to truck ${truck.truckNumber} for request #${truckRequest._id.toString().slice(-6)}. Route: ${truckRequest.pickupLocation} → ${truckRequest.deliveryLocation}`,
       data: {
         truckRequestId: truckRequest._id,
+        truckId: truck._id,
         status: 'assigned',
         priority: truckRequest.priority,
-        actionUrl: `/dashboard/assignments/${truckRequest._id}`
+        actionUrl: `/dashboard/driver/assignments/${truckRequest._id}`
       }
     });
 
@@ -127,8 +162,8 @@ const assignTruckRequest = async (request, { session, user }, params) => {
       data: {
         request: updatedRequest,
         assignment: {
-          truckId,
-          driverName: driver.name,
+          truck: truck,
+          driver: driver,
           assignedAt: truckRequest.assignedTruck.assignedAt,
           assignedBy: user.name
         }

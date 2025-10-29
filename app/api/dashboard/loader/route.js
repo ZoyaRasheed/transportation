@@ -52,6 +52,64 @@ const getLoaderDashboard = async (request, { session, user }) => {
       createdAt: { $gte: thisMonth }
     });
 
+    // Calculate average response time
+    const completedWithTiming = await TruckRequest.find({
+      requesterId: user._id,
+      status: 'completed',
+      'assignedTruck.assignedAt': { $exists: true }
+    });
+
+    let averageResponseTime = '0m';
+    if (completedWithTiming.length > 0) {
+      const totalTime = completedWithTiming.reduce((sum, request) => {
+        const created = new Date(request.createdAt);
+        const assigned = new Date(request.assignedTruck.assignedAt);
+        return sum + (assigned - created);
+      }, 0);
+      const avgMinutes = Math.round(totalTime / (completedWithTiming.length * 60000));
+      averageResponseTime = `${avgMinutes}m`;
+    }
+
+    // Get today's stats
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(today);
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const todayRequests = await TruckRequest.countDocuments({
+      requesterId: user._id,
+      createdAt: { $gte: today, $lte: todayEnd }
+    });
+
+    const todayCompleted = await TruckRequest.countDocuments({
+      requesterId: user._id,
+      status: 'completed',
+      updatedAt: { $gte: today, $lte: todayEnd }
+    });
+
+    // Weekly trends
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+
+    const weeklyTrend = await TruckRequest.aggregate([
+      {
+        $match: {
+          requesterId: user._id,
+          createdAt: { $gte: weekAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            day: { $dayOfWeek: '$createdAt' },
+            date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.date': 1 } }
+    ]);
+
     return NextResponse.json({
       success: true,
       statusCode: 200,
@@ -73,7 +131,10 @@ const getLoaderDashboard = async (request, { session, user }) => {
           pendingRequests,
           completedRequests,
           monthlyRequests,
-          unreadNotifications
+          todayRequests,
+          todayCompleted,
+          unreadNotifications,
+          averageResponseTime
         },
         statusBreakdown: statusCounts.reduce((acc, item) => {
           acc[item._id] = item.count;
@@ -84,7 +145,8 @@ const getLoaderDashboard = async (request, { session, user }) => {
           return acc;
         }, {}),
         recentRequests,
-        recentNotifications
+        recentNotifications,
+        weeklyTrend
       },
       timestamp: new Date().toISOString()
     }, { status: 200 });

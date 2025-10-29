@@ -21,7 +21,12 @@ import {
 
 const dispatcherNavItems = [
   {
-    title: "All Requests",
+    title: "Dashboard",
+    url: "/dashboard/dispatcher",
+    icon: BarChart3,
+  },
+  {
+    title: "Pending Requests",
     url: "/dashboard/dispatcher/requests",
     icon: ClipboardList,
   },
@@ -29,11 +34,6 @@ const dispatcherNavItems = [
     title: "Fleet Management",
     url: "/dashboard/dispatcher/fleet",
     icon: Truck,
-  },
-  {
-    title: "Operations Dashboard",
-    url: "/dashboard/dispatcher",
-    icon: BarChart3,
   },
   {
     title: "Driver Management",

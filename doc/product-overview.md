@@ -21,6 +21,8 @@ The Transportation & Loading Coordination System is a comprehensive digital plat
 - **Intelligent Assignment**: Dispatchers assign trucks and drivers based on availability
 - **Real-time Status Tracking**: Live updates from request to completion
 - **Priority Management**: Urgent, high, normal, and low priority handling
+- **Assignment Modal**: Interactive assignment interface with resource selection
+- **Field Validation**: Automatic field mapping and validation for seamless workflow
 
 ### 🔄 **Yard Operations Management**
 - **Loading Bay Management**: Track bay availability and assignments
@@ -29,10 +31,12 @@ The Transportation & Loading Coordination System is a comprehensive digital plat
 - **Bay Assignment**: Efficient allocation of trucks to optimal loading bays
 
 ### 📊 **Role-Based Dashboards**
-- **Loader Dashboard**: Personal request tracking and creation tools
+- **Loader Dashboard**: Personal request tracking and creation tools with modal interactions
 - **Switcher Dashboard**: Yard operations and bay management interface
-- **Dispatcher Dashboard**: Fleet assignment and coordination center
+- **Dispatcher Dashboard**: Complete fleet assignment and coordination center
 - **Admin Dashboard**: System analytics and user management
+- **Fleet Management**: Comprehensive truck and driver monitoring interface
+- **Request Management**: Dedicated request tracking with assignment capabilities
 
 ### 🔔 **Real-Time Communication**
 - **Push Notifications**: Instant mobile and browser notifications
@@ -45,6 +49,16 @@ The Transportation & Loading Coordination System is a comprehensive digital plat
 - **Utilization Reports**: Bay and truck utilization statistics
 - **Trend Analysis**: Historical data analysis for optimization
 - **Custom Reports**: Flexible reporting for management insights
+- **Fleet Analytics**: Truck performance and driver efficiency tracking
+- **Assignment Metrics**: Assignment completion rates and response times
+
+### 🚗 **Fleet Management System**
+- **Vehicle Registration**: Complete truck registration with specifications
+- **Driver Licensing**: Driver profile management with license verification
+- **Availability Tracking**: Real-time status of trucks and drivers
+- **Assignment History**: Complete audit trail of vehicle assignments
+- **Maintenance Scheduling**: Track vehicle maintenance and availability
+- **Capacity Management**: Optimize load assignments based on truck capacity
 
 ---
 
@@ -66,10 +80,13 @@ The Transportation & Loading Coordination System is a comprehensive digital plat
 
 ### **Dispatcher** 📋
 **Primary Function**: Coordinate transportation resources
-- Assign trucks and drivers to requests
-- Monitor fleet utilization and availability
-- Update request statuses and priorities
-- Oversee cross-department coordination
+- Assign trucks and drivers to requests through interactive modal system
+- Monitor fleet utilization and availability across multiple dashboard views
+- Update request statuses and priorities with real-time updates
+- Oversee cross-department coordination through dedicated interfaces
+- Manage fleet resources through comprehensive fleet management dashboard
+- Track driver licensing and availability through dedicated driver management
+- Monitor system notifications and alerts through notification center
 
 ### **Supervisor** 👨‍💼
 **Primary Function**: Monitor operations and ensure efficiency
@@ -98,16 +115,20 @@ The Transportation & Loading Coordination System is a comprehensive digital plat
 - **UI Components**: Shadcn/UI with custom theming
 
 ### **API Architecture**
-- **20 RESTful Endpoints**: Complete CRUD operations for all entities
+- **25+ RESTful Endpoints**: Complete CRUD operations for all entities
 - **Role-Based Security**: Middleware protection on all sensitive operations
 - **Consistent Response Format**: Standardized JSON responses with metadata
 - **Real-Time Updates**: Automatic notifications on data changes
+- **Fleet Management APIs**: Comprehensive truck and driver management
+- **Assignment APIs**: Sophisticated truck and driver assignment workflow
 
 ### **Database Design**
-- **5 Core Models**: User, TruckRequest, Notification, LoadingBay, YardMovement
+- **7 Core Models**: User, TruckRequest, Notification, LoadingBay, YardMovement, Truck, DriverProfile
 - **Optimized Indexing**: Fast queries for dashboard and reporting needs
 - **Audit Trail**: Complete history of all operations and changes
 - **Scalable Schema**: Designed for growth and additional features
+- **Fleet Models**: Comprehensive truck and driver profile management
+- **Relationship Mapping**: Complex relationships between trucks, drivers, and requests
 
 ---
 
@@ -118,12 +139,16 @@ The Transportation & Loading Coordination System is a comprehensive digital plat
 - **Real-time coordination** eliminates radio dependency
 - **Automated workflows** reduce manual coordination effort
 - **Priority-based processing** ensures urgent requests get immediate attention
+- **Interactive Assignment System** streamlines truck and driver allocation
+- **Fleet Optimization** improves resource utilization through intelligent matching
 
 ### **Visibility & Control**
 - **Complete audit trail** of all operations
 - **Real-time status tracking** for all requests
 - **Performance analytics** for continuous improvement
 - **Centralized dashboard** for management oversight
+- **Fleet Visibility** with comprehensive truck and driver monitoring
+- **Assignment Tracking** with detailed history and analytics
 
 ### **Scalability & Growth**
 - **Role-based architecture** supports organizational growth

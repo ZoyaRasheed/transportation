@@ -20,6 +20,11 @@ import {
 
 const loaderNavItems = [
   {
+    title: "Dashboard",
+    url: "/dashboard/loader",
+    icon: BarChart3,
+  },
+  {
     title: "My Requests",
     url: "/dashboard/loader/requests",
     icon: ClipboardList,
@@ -28,11 +33,6 @@ const loaderNavItems = [
     title: "Create Request",
     url: "/dashboard/loader/create",
     icon: Plus,
-  },
-  {
-    title: "Dashboard",
-    url: "/dashboard/loader",
-    icon: BarChart3,
   },
   {
     title: "Notifications",

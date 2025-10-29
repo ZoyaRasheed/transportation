@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { withRoles } from '@/utils/roleMiddleware';
 import TruckRequest from '@/models/TruckRequest';
+import Notification from '@/models/Notification';
+import User from '@/models/User';
 
 const createTruckRequest = async (request, { session, user }) => {
   try {
@@ -35,6 +37,45 @@ const createTruckRequest = async (request, { session, user }) => {
 
     const populatedRequest = await TruckRequest.findById(truckRequest._id)
       .populate('requesterId', 'name email role department');
+
+    // Create notifications for dispatchers and supervisors
+    try {
+      const dispatchersAndSupervisors = await User.find({
+        role: { $in: ['dispatcher', 'supervisor', 'admin'] },
+        isActive: true
+      });
+
+      const priorityEmoji = {
+        'low': '🟢',
+        'normal': '🟡',
+        'medium': '🟡',
+        'high': '🔴',
+        'urgent': '🚨'
+      };
+
+      const notificationPromises = dispatchersAndSupervisors.map(recipient => {
+        const notification = new Notification({
+          recipientId: recipient._id,
+          senderId: user._id,
+          type: 'truck_request',
+          title: 'New Truck Request Created',
+          message: `${priorityEmoji[priority] || '📦'} ${user.name} created a new ${priority} priority truck request from ${pickupLocation} to ${deliveryLocation}`,
+          data: {
+            truckRequestId: truckRequest._id,
+            status: 'pending',
+            priority: priority,
+            actionUrl: `/dashboard/dispatcher/requests/${truckRequest._id}`
+          }
+        });
+        return notification.save();
+      });
+
+      await Promise.all(notificationPromises);
+      console.log(`Created ${notificationPromises.length} notifications for new truck request ${truckRequest._id}`);
+    } catch (notificationError) {
+      console.error('Failed to create notifications:', notificationError);
+      // Don't fail the request creation if notifications fail
+    }
 
     return NextResponse.json({
       success: true,
