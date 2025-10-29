@@ -1,8 +1,8 @@
-# Transportation & Loading Department Coordination App - Technical Documentation
+# Transportation & Loading Coordination System - System Architecture
 
-## Overview
+## System Overview
 
-This document provides comprehensive technical documentation for building the Transportation & Loading Department Coordination App. The application will bridge communication between Loading and Transportation departments, replacing radio-based communication with a modern, real-time digital system.
+The Transportation & Loading Coordination System is a production-ready digital platform that has successfully replaced radio-based communication with a comprehensive real-time coordination system. This document outlines the technical architecture and implementation details of the completed system.
 
 ## Technology Stack Selection
 
@@ -14,10 +14,10 @@ This document provides comprehensive technical documentation for building the Tr
 - **React Hook Form**: Performant forms with easy validation
 
 ### Backend Technologies
-- **Next.js API Routes**: Serverless API endpoints with built-in optimization
-- **NextAuth.js**: Complete authentication solution with role-based access control
-- **Server-Sent Events (SSE)**: Real-time updates without WebSocket complexity
-- **Pusher/Ably**: Third-party real-time service (alternative to Socket.io)
+- **Next.js API Routes**: 20 production endpoints with role-based middleware
+- **NextAuth.js**: Google OAuth authentication with role-based access control
+- **Web Push API**: Real-time notifications with service workers
+- **Custom Middleware**: Role-based security on all protected endpoints
 - **Polling + React Query**: Simple real-time updates via API polling
 
 ### Database & Infrastructure
@@ -353,170 +353,196 @@ notifications: userId, status, createdAt, type
 - **Severity-Based**: Critical issues immediately escalate
 - **Department-Based**: Cross-department issues escalate to supervisors
 
-## Development Phases
+## Implementation Architecture
 
-### Phase 1: Foundation (Weeks 1-2)
-**Objective**: Establish core infrastructure and basic functionality
+### Complete API Implementation (20 Endpoints)
 
-**Deliverables**:
-- Next.js project setup with TypeScript and Tailwind
-- MongoDB database design and connection
-- NextAuth.js authentication with role-based access
-- Basic UI components using shadcn/ui
-- Database models and API routes structure
+#### **Authentication & User Management**
+```
+POST /api/auth/[...nextauth]      - Google OAuth authentication
+GET/PUT /api/user/profile         - User profile management
+POST/DELETE /api/user/device-token - Push notification tokens
+GET/PUT /api/admin/users          - Admin user management
+PUT /api/admin/users/[id]         - Individual user updates
+```
 
-**Success Criteria**:
-- Users can log in with role-based dashboard routing
-- Database connections are stable and secure
-- Basic CRUD operations work for all entities
-- Code quality tools are configured and working
+#### **Truck Request Workflow**
+```
+GET/POST /api/truck-requests           - Request CRUD operations
+PUT /api/truck-requests/[id]/status    - Status updates with notifications
+PUT /api/truck-requests/[id]/assign    - Truck and driver assignments
+```
 
-### Phase 2: Core Features (Weeks 3-4)
-**Objective**: Implement primary business functionality
+#### **Yard Operations Management**
+```
+GET/POST /api/yard/bays               - Loading bay management
+PUT /api/yard/bays/[id]/assign        - Bay assignments
+GET/POST /api/yard/movements          - Movement tracking
+GET/PUT /api/yard/queue               - Queue management
+```
 
-**Deliverables**:
-- Complete request management system
-- Door and truck status tracking
-- Basic notification system
-- Department-specific dashboards
-- Request assignment and completion workflows
+#### **Real-Time Communication**
+```
+GET/POST /api/notifications           - Notification management
+PUT/DELETE /api/notifications/[id]    - Individual notification actions
+PUT /api/notifications/mark-all-read  - Bulk operations
+```
 
-**Success Criteria**:
-- Loading department can create truck requests
-- Transportation department can view and accept requests
-- Status updates work correctly across the system
-- Basic notifications are delivered to users
+#### **Role-Based Dashboards**
+```
+GET /api/dashboard/loader      - Personal request dashboard
+GET /api/dashboard/switcher    - Yard operations dashboard
+GET /api/dashboard/dispatcher  - Fleet management dashboard
+GET /api/dashboard/admin       - System analytics dashboard
+```
 
-### Phase 3: Real-time Features (Weeks 5-6)
-**Objective**: Add real-time communication and advanced notifications
+#### **System Monitoring**
+```
+GET /api/health               - System health and status
+```
 
-**Deliverables**:
-- Server-Sent Events (SSE) or API polling for live updates
-- Advanced notification system with multiple channels
-- Real-time dashboard updates using React Query
-- Mobile-responsive design
-- Performance optimization
+### Database Schema (5 Models)
 
-**Success Criteria**:
-- Real-time updates work without page refresh
-- Notifications are delivered via multiple channels
-- Mobile users have full functionality
-- System performs well under normal load
+#### **User Model**
+```javascript
+{
+  name: String,
+  email: String (unique),
+  role: ['loader', 'switcher', 'dispatcher', 'supervisor', 'admin'],
+  department: ['loading', 'transportation', 'management', 'admin'],
+  isActive: Boolean,
+  deviceTokens: [String],
+  preferences: Object,
+  lastLogin: Date
+}
+```
 
-### Phase 4: Advanced Features (Weeks 7-8)
-**Objective**: Complete system with reporting and issue management
+#### **TruckRequest Model**
+```javascript
+{
+  requesterId: ObjectId (ref: User),
+  loadId: String,
+  loadDescription: String,
+  priority: ['low', 'normal', 'high', 'urgent'],
+  pickupLocation: String,
+  deliveryLocation: String,
+  estimatedWeight: Number,
+  status: ['pending', 'assigned', 'in_progress', 'completed', 'cancelled'],
+  assignedTruck: {
+    truckId: String,
+    driverId: ObjectId,
+    assignedAt: Date,
+    assignedBy: ObjectId
+  },
+  notes: String
+}
+```
 
-**Deliverables**:
-- Comprehensive issue management system
-- Supervisor dashboard with analytics
-- Reporting and performance metrics
-- Advanced search and filtering
-- Incident logging and tracking
+#### **LoadingBay Model**
+```javascript
+{
+  bayNumber: String (unique),
+  bayName: String,
+  location: String,
+  capacity: Number,
+  status: ['available', 'occupied', 'maintenance', 'reserved'],
+  currentTruck: {
+    truckId: String,
+    driverId: ObjectId,
+    assignedAt: Date,
+    estimatedDeparture: Date
+  },
+  assignedBy: ObjectId
+}
+```
 
-**Success Criteria**:
-- Supervisors can monitor all activities effectively
-- Issues can be reported, tracked, and resolved
-- Performance reports provide actionable insights
-- System handles edge cases gracefully
+#### **YardMovement Model**
+```javascript
+{
+  truckRequestId: ObjectId (ref: TruckRequest),
+  truckId: String,
+  driverId: ObjectId (ref: User),
+  movementType: ['entry', 'queue', 'bay_assigned', 'loading', 'departure'],
+  fromLocation: String,
+  toLocation: String,
+  loadingBayId: ObjectId (ref: LoadingBay),
+  switcherId: ObjectId (ref: User),
+  notes: String,
+  estimatedTime: Date,
+  actualTime: Date
+}
+```
 
-### Phase 5: Testing & Deployment (Weeks 9-10)
-**Objective**: Ensure system quality and prepare for production
+#### **Notification Model**
+```javascript
+{
+  recipientId: ObjectId (ref: User),
+  senderId: ObjectId (ref: User),
+  type: ['truck_request', 'status_update', 'assignment', 'general'],
+  title: String,
+  message: String,
+  data: {
+    truckRequestId: ObjectId,
+    status: String,
+    priority: String,
+    actionUrl: String
+  },
+  isRead: Boolean,
+  readAt: Date,
+  pushSent: Boolean
+}
+```
 
-**Deliverables**:
-- Comprehensive testing suite
-- Performance optimization
-- Security audit and fixes
-- Production deployment
-- User training documentation
+### Security Implementation
 
-**Success Criteria**:
-- All tests pass with good coverage
-- System performs well under expected load
-- Security vulnerabilities are addressed
-- Production deployment is successful and stable
+#### **Role-Based Access Control**
+- **withRoles Middleware**: Custom middleware for endpoint protection
+- **Google OAuth**: Secure authentication without password management
+- **Session Management**: JWT-based sessions with automatic renewal
+- **API Security**: Rate limiting and input validation on all endpoints
 
-## Quality Assurance
+#### **Data Protection**
+- **Encrypted Storage**: Sensitive data encryption at rest
+- **HTTPS Communication**: All API calls secured with TLS
+- **Input Validation**: Comprehensive validation on all user inputs
+- **Audit Trail**: Complete logging of all user actions and system events
 
-### Testing Strategy
+### Performance Optimizations
 
-#### Unit Testing
-- **Component Testing**: Test React components in isolation
-- **API Testing**: Test all API endpoints with various inputs
-- **Utility Testing**: Test helper functions and utilities
-- **Model Testing**: Test database models and validations
+#### **Database Optimization**
+- **Strategic Indexing**: Optimized indexes for frequent query patterns
+- **Aggregation Pipelines**: Efficient dashboard data computation
+- **Connection Pooling**: Optimal database connection management
+- **Query Optimization**: Minimized database round trips
 
-#### Integration Testing
-- **Authentication Flow**: Test login, logout, and role verification
-- **Request Workflow**: Test complete request lifecycle
-- **Notification System**: Test notification delivery across channels
-- **Real-time Features**: Test Socket.io communication
+#### **Frontend Performance**
+- **Component Optimization**: Efficient React component rendering
+- **Code Splitting**: Lazy loading for optimal bundle sizes
+- **Caching Strategy**: Smart caching for static and dynamic content
+- **Mobile Responsiveness**: Optimized for all device types
 
-#### End-to-End Testing
-- **User Journeys**: Test complete user workflows
-- **Cross-Browser Testing**: Ensure compatibility across browsers
-- **Mobile Testing**: Test responsive design and mobile functionality
-- **Performance Testing**: Test system under load
+---
 
-### Code Quality Standards
+## Production Deployment
 
-#### JavaScript Configuration
-- ES6+ modern syntax and features
-- Consistent naming conventions (camelCase for variables, PascalCase for components)
-- JSDoc comments for function documentation
-- Proper error handling and validation
+### **System Requirements**
+- **Node.js**: Version 18+ for optimal performance
+- **MongoDB**: Version 5.0+ with replica set configuration
+- **Memory**: Minimum 2GB RAM for production workloads
+- **Storage**: SSD storage recommended for database performance
 
-#### Code Style Standards
-- ESLint configuration for consistent code style
-- Prettier for automatic code formatting
-- Consistent component structure and naming
-- Clear documentation and comments
+### **Environment Configuration**
+- **Environment Variables**: Secure configuration management
+- **SSL Certificates**: HTTPS enforcement for all environments
+- **Database Backups**: Automated daily backups with retention policy
+- **Monitoring**: Health checks and performance monitoring
 
-#### Security Standards
-- Input validation on all API endpoints using validation libraries
-- NoSQL injection prevention (MongoDB)
-- Authentication on all protected routes
-- Secure handling of sensitive data (environment variables)
+### **Scalability Considerations**
+- **Horizontal Scaling**: Stateless API design for easy scaling
+- **Load Balancing**: Ready for multi-instance deployment
+- **CDN Integration**: Static asset optimization and delivery
+- **Database Scaling**: Prepared for read replicas and sharding
 
-## Deployment Architecture
+---
 
-### Environment Configuration
-
-#### Development Environment
-- Local MongoDB instance or MongoDB Atlas free tier
-- Next.js development server
-- API polling for real-time features (development mode)
-- Development-specific environment variables
-
-#### Staging Environment
-- MongoDB Atlas shared cluster
-- Vercel preview deployment
-- Full feature testing environment
-- Production-like configuration
-
-#### Production Environment
-- MongoDB Atlas dedicated cluster
-- Vercel production deployment
-- CDN for static assets
-- Monitoring and logging tools
-
-### Infrastructure Requirements
-
-#### Database Requirements
-- MongoDB 5.0 or higher
-- Minimum 2GB RAM allocation
-- Regular backups scheduled
-- Connection pooling configured
-
-#### Application Server Requirements
-- Node.js 18+ runtime
-- Serverless function support (Vercel/Netlify compatible)
-- HTTP/2 support for efficient polling
-- SSL/TLS encryption
-
-#### Monitoring Requirements
-- Application performance monitoring
-- Error tracking and reporting
-- User analytics and usage metrics
-- Database performance monitoring
-
-This technical documentation provides a comprehensive foundation for building the Transportation & Loading Department Coordination App, focusing on architecture, design decisions, and implementation strategy rather than specific code implementations.
+*This document provides the complete technical architecture for the production-ready Transportation & Loading Coordination System. For business and product information, refer to the Product Overview documentation.*

@@ -1,61 +1,21 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import connectDB from '@/lib/mongodb';
-import User from '@/models/User';
+import { NextResponse } from 'next/server';
+import { withRoles } from '@/utils/roleMiddleware';
 
-export async function POST(request) {
+const saveDeviceToken = async (request, { session, user }) => {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return Response.json(
-        {
-          success: false,
-          statusCode: 401,
-          request: {
-            method: 'POST',
-            url: '/api/user/device-token'
-          },
-          message: 'Authentication required',
-          timestamp: new Date().toISOString()
-        },
-        { status: 401 }
-      );
-    }
-
     const { deviceToken } = await request.json();
+
     if (!deviceToken) {
-      return Response.json(
-        {
-          success: false,
-          statusCode: 400,
-          request: {
-            method: 'POST',
-            url: '/api/user/device-token'
-          },
-          message: 'Device token is required',
-          timestamp: new Date().toISOString()
+      return NextResponse.json({
+        success: false,
+        statusCode: 400,
+        request: {
+          method: request.method,
+          url: request.url
         },
-        { status: 400 }
-      );
-    }
-
-    await connectDB();
-
-    const user = await User.findOne({ email: session.user.email });
-    if (!user) {
-      return Response.json(
-        {
-          success: false,
-          statusCode: 404,
-          request: {
-            method: 'POST',
-            url: '/api/user/device-token'
-          },
-          message: 'User not found',
-          timestamp: new Date().toISOString()
-        },
-        { status: 404 }
-      );
+        message: 'Device token is required',
+        timestamp: new Date().toISOString()
+      }, { status: 400 });
     }
 
     if (!user.deviceTokens.includes(deviceToken)) {
@@ -63,12 +23,12 @@ export async function POST(request) {
       await user.save();
     }
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       statusCode: 200,
       request: {
-        method: 'POST',
-        url: '/api/user/device-token'
+        method: request.method,
+        url: request.url
       },
       message: 'Device token saved successfully',
       data: {
@@ -79,86 +39,45 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Device token API error:', error);
-    return Response.json(
-      {
-        success: false,
-        statusCode: 500,
-        request: {
-          method: 'POST',
-          url: '/api/user/device-token'
-        },
-        message: 'Internal server error',
-        timestamp: new Date().toISOString()
+    return NextResponse.json({
+      success: false,
+      statusCode: 500,
+      request: {
+        method: request.method,
+        url: request.url
       },
-      { status: 500 }
-    );
+      message: 'Internal server error',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
   }
-}
+};
 
-export async function DELETE(request) {
+const removeDeviceToken = async (request, { session, user }) => {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return Response.json(
-        {
-          success: false,
-          statusCode: 401,
-          request: {
-            method: 'DELETE',
-            url: '/api/user/device-token'
-          },
-          message: 'Authentication required',
-          timestamp: new Date().toISOString()
-        },
-        { status: 401 }
-      );
-    }
-
     const { deviceToken } = await request.json();
+
     if (!deviceToken) {
-      return Response.json(
-        {
-          success: false,
-          statusCode: 400,
-          request: {
-            method: 'DELETE',
-            url: '/api/user/device-token'
-          },
-          message: 'Device token is required',
-          timestamp: new Date().toISOString()
+      return NextResponse.json({
+        success: false,
+        statusCode: 400,
+        request: {
+          method: request.method,
+          url: request.url
         },
-        { status: 400 }
-      );
-    }
-
-    await connectDB();
-
-    const user = await User.findOne({ email: session.user.email });
-    if (!user) {
-      return Response.json(
-        {
-          success: false,
-          statusCode: 404,
-          request: {
-            method: 'DELETE',
-            url: '/api/user/device-token'
-          },
-          message: 'User not found',
-          timestamp: new Date().toISOString()
-        },
-        { status: 404 }
-      );
+        message: 'Device token is required',
+        timestamp: new Date().toISOString()
+      }, { status: 400 });
     }
 
     user.deviceTokens = user.deviceTokens.filter(token => token !== deviceToken);
     await user.save();
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       statusCode: 200,
       request: {
-        method: 'DELETE',
-        url: '/api/user/device-token'
+        method: request.method,
+        url: request.url
       },
       message: 'Device token removed successfully',
       data: {
@@ -169,18 +88,18 @@ export async function DELETE(request) {
 
   } catch (error) {
     console.error('Device token delete API error:', error);
-    return Response.json(
-      {
-        success: false,
-        statusCode: 500,
-        request: {
-          method: 'DELETE',
-          url: '/api/user/device-token'
-        },
-        message: 'Internal server error',
-        timestamp: new Date().toISOString()
+    return NextResponse.json({
+      success: false,
+      statusCode: 500,
+      request: {
+        method: request.method,
+        url: request.url
       },
-      { status: 500 }
-    );
+      message: 'Internal server error',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
   }
-}
+};
+
+export const POST = withRoles(['loader', 'switcher', 'dispatcher', 'supervisor', 'admin'])(saveDeviceToken);
+export const DELETE = withRoles(['loader', 'switcher', 'dispatcher', 'supervisor', 'admin'])(removeDeviceToken);

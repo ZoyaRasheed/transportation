@@ -4,7 +4,7 @@ import { signIn, getSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Truck, ArrowRight } from 'lucide-react';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
 
 export default function SignIn() {
   const router = useRouter();
@@ -101,7 +101,6 @@ export default function SignIn() {
           </div>
         </div>
       </div>
-      <Toaster />
     </div>
   );
 }

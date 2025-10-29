@@ -1,39 +1,43 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../../../lib/auth';
-import connectDB from '../../../../lib/mongodb';
-import User from '../../../../models/User';
+import { withRoles } from '@/utils/roleMiddleware';
+import User from '@/models/User';
 
-export async function GET(req) {
+const getUsers = async (request) => {
   try {
-    const session = await getServerSession(authOptions);
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page')) || 1;
+    const limit = parseInt(searchParams.get('limit')) || 10;
+    const role = searchParams.get('role');
+    const department = searchParams.get('department');
+    const isActive = searchParams.get('isActive');
 
-    if (!session || session.user.role !== 'admin') {
-      return NextResponse.json({
-        success: false,
-        statusCode: 403,
-        request: {
-          ip: req.ip || null,
-          method: req.method || null,
-          url: req.url || null,
-        },
-        message: 'Admin access required',
-        data: null,
-        timestamp: new Date().toISOString()
-      }, { status: 403 });
+    let query = {};
+
+    if (role) {
+      query.role = role;
+    }
+    if (department) {
+      query.department = department;
+    }
+    if (isActive !== null && isActive !== undefined) {
+      query.isActive = isActive === 'true';
     }
 
-    await connectDB();
+    const skip = (page - 1) * limit;
 
-    const users = await User.find({}).sort({ createdAt: -1 });
+    const users = await User.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await User.countDocuments(query);
 
     return NextResponse.json({
       success: true,
       statusCode: 200,
       request: {
-        ip: req.ip || null,
-        method: req.method || null,
-        url: req.url || null,
+        method: request.method,
+        url: request.url
       },
       message: 'Users retrieved successfully',
       data: {
@@ -48,7 +52,12 @@ export async function GET(req) {
           lastLogin: user.lastLogin,
           createdAt: user.createdAt
         })),
-        total: users.length
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
       },
       timestamp: new Date().toISOString()
     }, { status: 200 });
@@ -58,13 +67,13 @@ export async function GET(req) {
       success: false,
       statusCode: 500,
       request: {
-        ip: req.ip || null,
-        method: req.method || null,
-        url: req.url || null,
+        method: request.method,
+        url: request.url
       },
       message: 'Failed to retrieve users',
-      data: null,
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
-}
+};
+
+export const GET = withRoles(['admin'])(getUsers);
