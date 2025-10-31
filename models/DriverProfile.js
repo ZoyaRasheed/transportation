@@ -87,8 +87,6 @@ const DriverProfileSchema = new mongoose.Schema({
   timestamps: true
 });
 
-DriverProfileSchema.index({ userId: 1 });
 DriverProfileSchema.index({ status: 1, isActive: 1 });
-DriverProfileSchema.index({ licenseNumber: 1 });
 
 export default mongoose.models.DriverProfile || mongoose.model('DriverProfile', DriverProfileSchema);

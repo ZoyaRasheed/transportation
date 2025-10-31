@@ -42,6 +42,5 @@ const LoadingBaySchema = new mongoose.Schema({
 });
 
 LoadingBaySchema.index({ status: 1, isActive: 1 });
-LoadingBaySchema.index({ bayNumber: 1 });
 
 export default mongoose.models.LoadingBay || mongoose.model('LoadingBay', LoadingBaySchema);

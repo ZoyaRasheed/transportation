@@ -65,7 +65,6 @@ const TruckSchema = new mongoose.Schema({
 });
 
 TruckSchema.index({ status: 1, isActive: 1 });
-TruckSchema.index({ truckNumber: 1 });
 TruckSchema.index({ assignedDriverId: 1 });
 
 export default mongoose.models.Truck || mongoose.model('Truck', TruckSchema);
