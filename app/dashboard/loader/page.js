@@ -38,7 +38,7 @@ const LoaderDashboard = () => {
 
   const [newRequest, setNewRequest] = useState({
     loadDescription: '',
-    priority: 'medium',
+    priority: 'normal',
     pickupLocation: '',
     destination: '',
     estimatedWeight: '',
@@ -105,7 +105,7 @@ const LoaderDashboard = () => {
         setIsCreateModalOpen(false)
         setNewRequest({
           loadDescription: '',
-          priority: 'medium',
+          priority: 'normal',
           pickupLocation: '',
           destination: '',
           estimatedWeight: '',
@@ -154,8 +154,9 @@ const LoaderDashboard = () => {
   const getPriorityColor = (priority) => {
     const colors = {
       low: 'secondary',
-      medium: 'default',
-      high: 'destructive'
+      normal: 'default',
+      high: 'destructive',
+      urgent: 'destructive'
     }
     return colors[priority] || 'default'
   }
@@ -399,8 +400,9 @@ const LoaderDashboard = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="low">🟢 Low Priority</SelectItem>
-                          <SelectItem value="medium">🟡 Medium Priority</SelectItem>
+                          <SelectItem value="normal">🟡 Normal Priority</SelectItem>
                           <SelectItem value="high">🔴 High Priority</SelectItem>
+                          <SelectItem value="urgent">🔴 Urgent Priority</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -521,8 +523,9 @@ const LoaderDashboard = () => {
                       <SelectContent>
                         <SelectItem value="all">All Priority</SelectItem>
                         <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
                         <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

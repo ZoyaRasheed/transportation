@@ -86,5 +86,5 @@ const updateProfile = async (request, { session, user }) => {
   }
 };
 
-export const GET = withRoles(['loader', 'switcher', 'dispatcher', 'supervisor', 'admin'])(getProfile);
-export const PUT = withRoles(['loader', 'switcher', 'dispatcher', 'supervisor', 'admin'])(updateProfile);
+export const GET = withRoles(['loader', 'switcher', 'dispatcher', 'supervisor', 'admin','driver'])(getProfile);
+export const PUT = withRoles(['loader', 'switcher', 'dispatcher', 'supervisor', 'admin','driver'])(updateProfile);

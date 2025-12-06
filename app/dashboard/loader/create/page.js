@@ -28,7 +28,7 @@ const CreateRequestPage = () => {
 
   const [formData, setFormData] = useState({
     loadDescription: '',
-    priority: 'medium',
+    priority: 'normal',
     pickupLocation: '',
     destination: '',
     estimatedWeight: '',
@@ -130,8 +130,9 @@ const CreateRequestPage = () => {
 
   const getPriorityIcon = (priority) => {
     switch (priority) {
+      case 'urgent': return <Zap className="h-4 w-4 text-destructive" />
       case 'high': return <AlertCircle className="h-4 w-4 text-destructive" />
-      case 'medium': return <Clock className="h-4 w-4 text-secondary-foreground" />
+      case 'normal': return <Clock className="h-4 w-4 text-secondary-foreground" />
       case 'low': return <CheckCircle2 className="h-4 w-4 text-primary" />
       default: return <Clock className="h-4 w-4 text-muted-foreground" />
     }
@@ -139,8 +140,9 @@ const CreateRequestPage = () => {
 
   const getPriorityColor = (priority) => {
     const colors = {
+      urgent: 'from-destructive/10 to-destructive/20 border-destructive/30',
       high: 'from-destructive/5 to-destructive/10 border-destructive/20',
-      medium: 'from-secondary/5 to-secondary/10 border-secondary/20',
+      normal: 'from-secondary/5 to-secondary/10 border-secondary/20',
       low: 'from-primary/5 to-primary/10 border-primary/20'
     }
     return colors[priority] || 'from-muted/5 to-muted/10 border-border'
@@ -266,9 +268,9 @@ const CreateRequestPage = () => {
                 <RadioGroup
                   value={formData.priority}
                   onValueChange={(value) => handleInputChange('priority', value)}
-                  className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
                 >
-                  {['high', 'medium', 'low'].map((priority) => (
+                  {['low', 'normal', 'high', 'urgent'].map((priority) => (
                     <div key={priority} className={`
                       border-2 rounded-lg p-4 cursor-pointer transition-all
                       bg-linear-to-br ${getPriorityColor(priority)}
@@ -281,9 +283,10 @@ const CreateRequestPage = () => {
                           <div>
                             <h4 className="font-medium capitalize">{priority} Priority</h4>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {priority === 'high' && 'Urgent delivery required'}
-                              {priority === 'medium' && 'Standard processing time'}
                               {priority === 'low' && 'Flexible delivery schedule'}
+                              {priority === 'normal' && 'Standard processing time'}
+                              {priority === 'high' && 'Expedited delivery'}
+                              {priority === 'urgent' && 'Immediate attention required'}
                             </p>
                           </div>
                         </div>

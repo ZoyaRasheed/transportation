@@ -16,6 +16,7 @@ import { SwitcherSidebar } from './sidebars/SwitcherSidebar';
 import { DispatcherSidebar } from './sidebars/DispatcherSidebar';
 import { SupervisorSidebar } from './sidebars/SupervisorSidebar';
 import { AdminSidebar } from './sidebars/AdminSidebar';
+import { DriverSidebar } from './sidebars/DriverSidebar';
 import { Truck, User } from 'lucide-react';
 import Link from 'next/link';
 
@@ -59,6 +60,8 @@ export function AppSidebar() {
         return <SupervisorSidebar user={session.user} />;
       case 'admin':
         return <AdminSidebar user={session.user} />;
+      case 'driver':
+        return <DriverSidebar user={session.user} />;
       default:
         return <LoaderSidebar user={session.user} />;
     }

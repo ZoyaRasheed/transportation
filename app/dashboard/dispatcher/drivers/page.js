@@ -313,7 +313,7 @@ const DispatcherDriversPage = () => {
                           <div className="text-sm">
                             <div className="flex items-center space-x-1">
                               <Calendar className="h-3 w-3 text-muted-foreground" />
-                              <span>{driver.experience || 0} years</span>
+                              <span>{driver.experience?.years || 0} years</span>
                             </div>
                           </div>
                         </TableCell>
@@ -346,7 +346,7 @@ const DispatcherDriversPage = () => {
                                           <p><span className="text-muted-foreground">Name:</span> {selectedDriver.userId?.name}</p>
                                           <p><span className="text-muted-foreground">Email:</span> {selectedDriver.userId?.email}</p>
                                           <p><span className="text-muted-foreground">Phone:</span> {selectedDriver.phone}</p>
-                                          <p><span className="text-muted-foreground">Experience:</span> {selectedDriver.experience || 0} years</p>
+                                          <p><span className="text-muted-foreground">Experience:</span> {selectedDriver.experience?.years || 0} years</p>
                                         </div>
                                       </div>
                                       <div className="space-y-2">
@@ -371,7 +371,8 @@ const DispatcherDriversPage = () => {
                                       <div className="space-y-2">
                                         <h4 className="font-medium text-foreground">Address</h4>
                                         <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                                          {selectedDriver.address}
+                                          <p>{selectedDriver.address.street}</p>
+                                          <p>{selectedDriver.address.city}, {selectedDriver.address.state} - {selectedDriver.address.pincode}</p>
                                         </div>
                                       </div>
                                     )}
@@ -379,7 +380,9 @@ const DispatcherDriversPage = () => {
                                       <div className="space-y-2">
                                         <h4 className="font-medium text-foreground">Emergency Contact</h4>
                                         <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                                          {selectedDriver.emergencyContact}
+                                          <p><span className="font-medium">Name:</span> {selectedDriver.emergencyContact.name}</p>
+                                          <p><span className="font-medium">Phone:</span> {selectedDriver.emergencyContact.phone}</p>
+                                          <p><span className="font-medium">Relation:</span> {selectedDriver.emergencyContact.relation}</p>
                                         </div>
                                       </div>
                                     )}
